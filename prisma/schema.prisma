@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,36 +7,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
+//
+// ─── AUTH MODELS (Better Auth Compatible) ────────────────────────────────
+//
 
 model User {
   id            String    @id
   name          String
-  email         String
+  email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
+
   sessions      Session[]
   accounts      Account[]
-
-  @@unique([email])
-  @@map("user")
+  workspaces    Workspace[]       @relation("UserWorkspaces")
+  memberships   WorkspaceMember[]
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
+
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([token])
-  @@map("session")
 }
 
 model Account {
@@ -47,6 +45,7 @@ model Account {
   providerId            String
   userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -54,10 +53,9 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
 
-  @@map("account")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
 }
 
 model Verification {
@@ -67,6 +65,109 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
+}
 
-  @@map("verification")
+//
+// ─── WORKSPACES & MEMBERSHIP ─────────────────────────────────────────────
+//
+
+model Workspace {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  ownerId     String
+  owner       User        @relation("UserWorkspaces", fields: [ownerId], references: [id])
+
+  collections Collection[]
+  members     WorkspaceMember[]
+  environments Environment[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+enum MEMBER_ROLE {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  role        MEMBER_ROLE @default(ADMIN)
+
+  userId      String
+  workspaceId String
+
+  user        User       @relation(fields: [userId], references: [id])
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+}
+
+//
+// ─── COLLECTIONS & REQUESTS ──────────────────────────────────────────────
+//
+
+model Collection {
+  id          String     @id @default(cuid())
+  name        String
+
+  workspaceId String
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  requests    Request[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+}
+
+enum REST_METHOD {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+}
+
+model Request {
+  id          String      @id @default(cuid())
+  name        String
+  method      REST_METHOD @default(GET)
+  url         String
+  headers     Json?       // e.g. [{ key: "Content-Type", value: "application/json" }]
+  body        Json?       // request body (JSON / text)
+  response    Json?       // optional: save last response
+
+  collectionId String
+  collection   Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  runs         RequestRun[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
+}
+
+model RequestRun {
+  id         String   @id @default(cuid())
+
+  requestId  String
+  request    Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  status     Int
+  statusText String?
+  headers    Json?
+  body       String?   // raw text or JSON string
+  durationMs Int?
+
+  createdAt  DateTime @default(now())
+}
+
+//
+// ─── ENVIRONMENTS ───────────────────────────────────────────────────────
+//
+
+model Environment {
+  id          String     @id @default(cuid())
+  name        String
+  values      Json       // e.g. { "BASE_URL": "https://api.example.com", "AUTH": "Bearer xxx" }
+
+  workspaceId String
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
