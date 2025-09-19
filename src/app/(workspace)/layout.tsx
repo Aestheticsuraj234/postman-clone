@@ -8,11 +8,14 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   console.log(JSON.stringify(workspace))
   const user = await currentUser()
   return (
-    <main className='w-screen h-screen '>
+    <>
       {/* @ts-ignore */}
       <Header user={user!} workspace={workspace.workspace!} />
+      <main className='max-h-[calc(100vh-4rem)] h-[calc(100vh-4rem)] overflow-hidden'>
       {children}
-    </main>
+
+      </main>
+    </>
   )
 }
 
