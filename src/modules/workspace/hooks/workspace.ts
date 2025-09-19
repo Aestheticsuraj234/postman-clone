@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createWorkspace, getWorkspaces } from "../actions";
+import { createWorkspace, getWorkspaceById, getWorkspaces } from "../actions";
 
 
 export function useWorkspaces() {
@@ -17,5 +17,12 @@ export function useCreateWorkspace() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
     },
+  });
+}
+
+export function useGetWorkspace(id: string) {
+  return useQuery({
+    queryKey: ["workspace", id],
+    queryFn: async () => getWorkspaceById(id),
   });
 }

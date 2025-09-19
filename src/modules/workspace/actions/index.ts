@@ -89,3 +89,15 @@ export async function createWorkspace(name: string) {
 
   return workspace;
 }
+
+
+export const getWorkspaceById = async (id: string) => {
+  const workspace = await db.workspace.findUnique({
+    where: { id },
+    include: {
+      members: true,
+    },
+  });
+  return workspace;
+};
+
