@@ -115,6 +115,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
       />
+      
     </div>
   );
 };
