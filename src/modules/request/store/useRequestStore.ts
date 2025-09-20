@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import { nanoid } from "nanoid";
 
-type RequestTab = {
+interface SavedRequest {
+  id: string;
+  name: string;
+  method: string;
+  url: string;
+}
+
+export type RequestTab = {
   id: string;
   title: string;
   method: string;
@@ -22,6 +29,7 @@ type PlaygroundState = {
   updateTab: (id: string, data: Partial<RequestTab>) => void;
   markUnsaved: (id: string, value: boolean) => void;
   openRequestTab: (req: any) => void; // 👈 new
+  updateTabFromSavedRequest: (tabId: string, savedRequest: SavedRequest) => void;
 };
 
 export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
@@ -102,4 +110,22 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
         activeTabId: newTab.id,
       };
     }),
+
+    updateTabFromSavedRequest: (tabId: string, savedRequest: SavedRequest) =>
+  set((state) => ({
+    tabs: state.tabs.map((t) =>
+      t.id === tabId
+        ? {
+            ...t,
+            id: savedRequest.id, // ✅ Replace temporary id with saved one
+            title: savedRequest.name,
+            method: savedRequest.method,
+            url: savedRequest.url,
+            unsavedChanges: false,
+          }
+        : t
+    ),
+    activeTabId: savedRequest.id, // ✅ keep active in sync
+  })),
+
 }));
