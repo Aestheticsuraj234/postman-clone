@@ -1,11 +1,16 @@
 import { create } from "zustand";
 import { nanoid } from "nanoid";
+import { ResponseData } from "../components/response-viewer";
 
 interface SavedRequest {
   id: string;
   name: string;
   method: string;
   url: string;
+  body?: string;
+  headers?: string;
+  parameters?: string;
+ 
 }
 
 export type RequestTab = {
@@ -14,6 +19,8 @@ export type RequestTab = {
   method: string;
   url: string;
   body?: string;
+  headers?: string;
+  parameters?: string;
   unsavedChanges?: boolean;
   requestId?: string; // 👈 link to DB request
   collectionId?: string;
@@ -30,9 +37,13 @@ type PlaygroundState = {
   markUnsaved: (id: string, value: boolean) => void;
   openRequestTab: (req: any) => void; // 👈 new
   updateTabFromSavedRequest: (tabId: string, savedRequest: SavedRequest) => void;
+  responseViewerData:ResponseData | null;
+  setResponseViewerData: (data:ResponseData) => void
 };
 
 export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
+  responseViewerData:null,
+  setResponseViewerData: (data) => set({ responseViewerData: data }),
   tabs: [
     {
       id: nanoid(),
@@ -40,6 +51,7 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
       method: "GET",
       url: "https://echo.hoppscotch.io",
       unsavedChanges: false,
+      
     },
   ],
   activeTabId: null,
@@ -51,11 +63,15 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
         title: "Untitled",
         method: "GET",
         url: "",
+        body: "",
+        headers: "",
+        parameters: "",
         unsavedChanges: true,
       };
       return {
-        tabs: [...state.tabs, newTab],
+        tabs: [...state.tabs, newTab ],
         activeTabId: newTab.id,
+
       };
     }),
 
@@ -99,6 +115,8 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
         method: req.method,
         url: req.url,
         body: req.body,
+        headers: req.headers,
+        parameters: req.parameters,
         requestId: req.id,
         collectionId: req.collectionId,
         workspaceId: req.workspaceId,
@@ -120,6 +138,9 @@ export const useRequestPlaygroundStore = create<PlaygroundState>((set) => ({
             id: savedRequest.id, // ✅ Replace temporary id with saved one
             title: savedRequest.name,
             method: savedRequest.method,
+            body: savedRequest?.body,
+            headers: savedRequest?.headers,
+            parameters: savedRequest?.parameters,
             url: savedRequest.url,
             unsavedChanges: false,
           }

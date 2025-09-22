@@ -143,7 +143,9 @@ model Request {
   name        String
   method      REST_METHOD @default(GET)
   url         String
-  headers     Json?       // e.g. [{ key: "Content-Type", value: "application/json" }]
+  parameters  Json?
+  headers     Json?       // e.g. 
+  
   body        Json?       // request body (JSON / text)
   response    Json?       // optional: save last response
 
