@@ -14,12 +14,12 @@ import { useSaveRequest } from "../hooks/request";
 
 export default function PlaygroundPage() {
   const { tabs, activeTabId, addTab } = useRequestPlaygroundStore();
-  const {mutateAsync , isPending
-
-  } = useSaveRequest(activeTabId!);
-  const [showSaveModal, setShowSaveModal] = useState(false);
 
   const activeTab = tabs.find((t) => t.id === activeTabId);
+
+  const {mutateAsync, isPending} = useSaveRequest(activeTab?.requestId!);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+
 
   const getCurrentRequestData = () => {
     if (!activeTab) {
@@ -37,26 +37,39 @@ export default function PlaygroundPage() {
     };
   };
 
-  useHotkeys(
-    "ctrl+s, meta+s",
-    (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!activeTab) {
-        toast.error("No active request to save");
-        return;
+ useHotkeys(
+  "ctrl+s, meta+s",
+  async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!activeTab) {
+      toast.error("No active request to save");
+      return;
+    }
+
+    if (activeTab.collectionId) {
+  
+      try {
+        await mutateAsync({
+          url: activeTab.url || "https://echo.hoppscotch.io",
+          method: activeTab.method as REST_METHOD,
+          name: activeTab.title || "Untitled Request",
+        });
+        toast.success("Request updated");
+      } catch (err) {
+        console.error("Failed to update request:", err);
+        toast.error("Failed to update request");
       }
-
-
-    
+    } else {
+     
       setShowSaveModal(true);
-    },
-    {
-      preventDefault: true,
-      enableOnFormTags: true,
-    },
-    [activeTab]
-  );
+    }
+  },
+  { preventDefault: true, enableOnFormTags: true },
+  [activeTab]
+);
+
 
   useHotkeys(
     "ctrl+shift+n, meta+shift+n",

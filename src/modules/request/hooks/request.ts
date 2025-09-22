@@ -9,22 +9,18 @@ import { useRequestPlaygroundStore } from "../store/useRequestStore";
 
 export function useAddRequestToCollection(collectionId: string) {
   const queryClient = useQueryClient();
-  const { updateTabFromSavedRequest, activeTabId } =
-    useRequestPlaygroundStore();
+  const { updateTabFromSavedRequest, activeTabId } = useRequestPlaygroundStore();
   return useMutation({
-    mutationFn: async (value: Request) =>
-      addRequestToCollection(collectionId, value),
+    mutationFn: async (value: Request) => addRequestToCollection(collectionId, value),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["requests", collectionId] });
-      // sync my active tab data
-
       updateTabFromSavedRequest(activeTabId!, data);
     },
   });
 }
 
 export function useGetAllRequestFromCollection(collectionId: string) {
-  const queryClient = useQueryClient();
+
   return useQuery({
     queryKey: ["requests", collectionId],
     queryFn: async () => getAllRequestFromCollection(collectionId),
@@ -32,12 +28,14 @@ export function useGetAllRequestFromCollection(collectionId: string) {
 }
 
 export function useSaveRequest(id: string) {
+ const { updateTabFromSavedRequest, activeTabId } = useRequestPlaygroundStore();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (value: Request) => saveRequest(id, value),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["requests"] });
+       updateTabFromSavedRequest(activeTabId!, data);
     },
   });
 }

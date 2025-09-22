@@ -3,14 +3,14 @@
 import Modal from "@/components/ui/modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Folder, Plus, Search, X } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, act } from "react";
 import { toast } from "sonner";
-import { useAddRequestToCollection } from "@/modules/request/hooks/request";
+import { useAddRequestToCollection, useSaveRequest } from "@/modules/request/hooks/request";
 import { REST_METHOD } from "@prisma/client";
 import { useWorkspaceStore } from "@/modules/Layout/store";
 import { useCollections } from "../hooks/collections";
 import { Button } from "@/components/ui/button";
-import { useRequestPlaygroundStore } from "@/modules/request/store/useRequestStore";
+
 
 const SaveRequestToCollectionModal = ({
   isModalOpen,
@@ -21,6 +21,7 @@ const SaveRequestToCollectionModal = ({
     method: REST_METHOD.GET,
   },
   initialName = "Untitled",
+  collectionId
 }: {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
@@ -30,23 +31,37 @@ const SaveRequestToCollectionModal = ({
     url: string;
   };
   initialName?: string;
+  collectionId?: string
 }) => {
   const [requestName, setRequestName] = useState(initialName);
-  const [selectedCollectionId, setSelectedCollectionId] = useState<string>("");
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string>(collectionId || "");
   const [searchTerm, setSearchTerm] = useState("");
-  const {updateTabFromSavedRequest} = useRequestPlaygroundStore();
+
   
   const { selectedWorkspace } = useWorkspaceStore();
   const { data: collections, isLoading, isError } = useCollections(selectedWorkspace?.id!);
   const { mutateAsync, isPending } = useAddRequestToCollection(selectedCollectionId);
 
+
   useEffect(() => {
     if (isModalOpen) {
       setRequestName(requestData.name || initialName);
-      setSelectedCollectionId("");
+      setSelectedCollectionId(collectionId || "");
       setSearchTerm("");
     }
   }, [isModalOpen, requestData.name, initialName]);
+
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    if (collectionId) return; 
+    if (!selectedCollectionId && collections && collections.length > 0) {
+      setSelectedCollectionId(collections[0].id);
+    }
+  }, [isModalOpen, collections, collectionId, selectedCollectionId]);
+
+
+  
 
   const requestColorMap: Record<REST_METHOD, string> = {
     [REST_METHOD.GET]: "text-green-500",
