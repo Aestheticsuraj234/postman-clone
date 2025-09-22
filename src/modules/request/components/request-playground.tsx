@@ -55,6 +55,10 @@ export default function PlaygroundPage() {
           url: activeTab.url || "https://echo.hoppscotch.io",
           method: activeTab.method as REST_METHOD,
           name: activeTab.title || "Untitled Request",
+          body: activeTab.body,
+          headers: activeTab.headers,
+          parameters: activeTab.parameters,
+          
         });
         toast.success("Request updated");
       } catch (err) {
@@ -72,7 +76,7 @@ export default function PlaygroundPage() {
 
 
   useHotkeys(
-    "ctrl+shift+n, meta+shift+n",
+    "ctrl+g, meta+shift+n",
     (e) => {
       e.preventDefault();
       e.stopPropagation();

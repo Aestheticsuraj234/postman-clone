@@ -3,6 +3,7 @@ import {
   addRequestToCollection,
   getAllRequestFromCollection,
   Request,
+  run,
   saveRequest,
 } from "../actions";
 import { useRequestPlaygroundStore } from "../store/useRequestStore";
@@ -14,6 +15,7 @@ export function useAddRequestToCollection(collectionId: string) {
     mutationFn: async (value: Request) => addRequestToCollection(collectionId, value),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["requests", collectionId] });
+      // @ts-ignore
       updateTabFromSavedRequest(activeTabId!, data);
     },
   });
@@ -35,7 +37,23 @@ export function useSaveRequest(id: string) {
     mutationFn: async (value: Request) => saveRequest(id, value),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["requests"] });
+
+      // @ts-ignore
        updateTabFromSavedRequest(activeTabId!, data);
+    },
+  });
+}
+
+
+export function useRunRequest(requestId: string) {
+
+  const {setResponseViewerData} = useRequestPlaygroundStore();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => await run(requestId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+      setResponseViewerData(data);
     },
   });
 }
