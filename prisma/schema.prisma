@@ -82,10 +82,44 @@ model Workspace {
   members     WorkspaceMember[]
   environments Environment[]
 
+  websocketPresets WebSocketPreset[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
   @@unique([name, ownerId])
+}
+
+model WebSocketPreset {
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+  protocols  Json?    
+  params     Json?    
+  workspaceId String? 
+
+  workspace  Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+
+  websocketMessages WebsocketMessage[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum DIRECTION {
+  INCOMING
+  OUTGOING
+}
+
+model WebsocketMessage {
+  id          String   @id @default(cuid())
+  presetId    String? 
+  connectionId String? 
+  direction   DIRECTION @default(INCOMING)
+  payload     String?  
+  size        Int?
+  timestamp   DateTime @default(now())
+
+  preset      WebSocketPreset? @relation(fields: [presetId], references: [id], onDelete: SetNull)
+  meta        Json?
 }
 
 enum MEMBER_ROLE {
