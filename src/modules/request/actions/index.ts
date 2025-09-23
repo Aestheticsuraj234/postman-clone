@@ -90,12 +90,13 @@ export async function sendRequest(req: {
       res.headers["content-length"] ||
       new TextEncoder().encode(JSON.stringify(res.data)).length;
 
-      console.log(res.data);
+    console.log(res.data);
+    
     return {
-      status: res.data.status,
-      statusText: res.data.statusText,
-      headers: res.data.headers,
-      data: res.data,
+      status: res.status,        
+      statusText: res.statusText, 
+        headers: Object.fromEntries(Object.entries(res.headers)),      
+      data: res.data,            
       duration: Math.round(duration),
       size,
     };
