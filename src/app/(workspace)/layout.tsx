@@ -7,7 +7,7 @@ import React from 'react'
 
 const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const workspace = await initializeWorkspace()
-  console.log(JSON.stringify(workspace))
+
   const user = await currentUser()
   return (
     <>

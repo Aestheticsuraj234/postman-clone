@@ -24,6 +24,8 @@ model User {
   accounts      Account[]
   workspaces    Workspace[]       @relation("UserWorkspaces")
   memberships   WorkspaceMember[]
+
+  workspaceInvites WorkspaceInvite[]
 }
 
 model Session {
@@ -80,6 +82,7 @@ model Workspace {
 
   collections Collection[]
   members     WorkspaceMember[]
+  invites     WorkspaceInvite[]
   environments Environment[]
 
   websocketPresets WebSocketPreset[]
@@ -87,6 +90,22 @@ model Workspace {
   updatedAt   DateTime @default(now()) @updatedAt
 
   @@unique([name, ownerId])
+}
+
+model WorkspaceInvite {
+   id          String     @id @default(cuid())
+  workspaceId String
+  token       String     @unique
+  expiresAt   DateTime?
+  createdById String
+  
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy   User       @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+
+
+
 }
 
 model WebSocketPreset {

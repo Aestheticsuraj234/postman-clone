@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { signIn } from '@/lib/auth-client'
-import { Github } from 'lucide-react'
+import { Chrome, Github } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 
@@ -28,6 +28,16 @@ const LoginPage = () => {
             })}>
               <Github className='mr-2 h-4 w-4' />
               Sign in with GitHub
+            </Button>
+          </div>
+          
+          <div className='mt-6 grid grid-cols-1 gap-3'>
+            <Button variant='outline' className='w-full' onClick={() => signIn.social({
+              provider: 'google',
+              callbackURL: "/"
+            })}>
+              <Chrome className='mr-2 h-4 w-4' />
+              Sign in with Google
             </Button>
           </div>
         </div>
