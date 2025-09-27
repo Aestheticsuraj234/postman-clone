@@ -39,7 +39,6 @@ const JsonBodySchema = z.object({
 
 const StructuredJsonBodySchema = z.object({
   jsonBody: z.object({
-
     id: z.string().optional(),
     name: z.string().optional(),
     email: z.string().optional(),

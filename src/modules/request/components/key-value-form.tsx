@@ -103,7 +103,9 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
 
   const getFilteredItemsFromValues = (items: KeyValueItem[]) =>
     items
-      .filter((item) => item.enabled && (item.key?.trim() || item.value?.trim()))
+      .filter(
+        (item) => item.enabled && (item.key?.trim() || item.value?.trim())
+      )
       .map(({ key, value }) => ({ key, value }));
 
   // Simple debounce implementation
@@ -133,7 +135,9 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
     debouncedSaveRef.current = saveIfChanged;
   }, [saveIfChanged]);
 
-  const debouncedInvokerRef = useRef<((items: KeyValueItem[]) => void) | null>(null);
+  const debouncedInvokerRef = useRef<((items: KeyValueItem[]) => void) | null>(
+    null
+  );
   useEffect(() => {
     debouncedInvokerRef.current = debounce((items: KeyValueItem[]) => {
       debouncedSaveRef.current(items);
@@ -282,7 +286,9 @@ const KeyValueFormEditor: React.FC<KeyValueFormEditorProps> = ({
 
           {/* Autosave enabled — changes are saved automatically */}
           <div className="flex justify-end pt-4">
-            <span className="text-xs text-zinc-500">Changes saved automatically</span>
+            <span className="text-xs text-zinc-500">
+              Changes saved automatically
+            </span>
           </div>
         </div>
       </Form>

@@ -49,6 +49,7 @@ const TabbedSidebar = ({ currentWorkspace }: Props) => {
                 <ExternalLink className="w-4 h-4 text-zinc-400 hover:text-zinc-300 cursor-pointer" />
               </div>
             </div>
+            
 
          
             <div className="p-4 border-b border-zinc-800">
